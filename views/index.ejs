@@ -1,0 +1,75 @@
+<%- include("partials/header") %>
+<div class="container">
+    <div class="row my-4">
+        <div class="col-lg-12">
+            <% if (message) { %>
+                <div class="alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                    <strong><%= message.message %></strong>
+                </div>
+            <% } %>
+            <div table-responsive>
+                <% if (users != null) { %>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr class="table-primary text-center">
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Tags</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach((user, index) => { %>
+                                <tr class="align-middle">
+                                    <td class="text-center"><%= index %></td>
+                                    <td class="text-center"><img src = "<%= user.image %>" width="50" height="auto" class="img-thumbnail"></td>
+                                    <td class="text-center"><%= user.name %></td>
+                                    <td class="text-center"><%= user.email %></td>
+                                    <td class="text-center"><%= user.phone %></td>
+                                    <td>
+                                        <% if (user.tags && user.tags.length > 0) { %>
+                                            <% user.tags.forEach((tag) => { %>
+                                                <% if (tag.trim() !== "") { %>
+                                                    <button class="btn btn-warning rounded-pill p-1 d-inline-block align-self-start btn-sm" style="min-width: 50px;"><%= tag %></button>
+                                                <% } %>
+                                            <% }) %>
+                                        <% } %>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="/edit/<%= user._id %>" class="text-success"><i class="fas fa-edit fa-lg mx-1"></i></a>
+                                        <a href="javascript:;" onclick="confirm_alert('<%= user._id %>');" class="text-danger"><i class="fas fa-trash fa-lg mx-1"></i></a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <h1 class="text-center text-secondary mt-5">No User In Database!</h1>
+                <% } %>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function confirm_alert(id) {
+        if(confirm("Are you sure you want to delete this contact?")){
+            $.ajax({
+                url: "http://localhost:3000/delete/" + id + "?_method=DELETE",
+                method: "POST",
+                data: {id: id},
+                dataType: "JSON",
+                success: function(data) {
+                    setTimeout(function() {
+                        window.location.reload(true)
+                    }, 500);
+                }
+            });
+        }
+    } 
+</script>
+<%- include("partials/footer") %>

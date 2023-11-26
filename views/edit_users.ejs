@@ -1,0 +1,120 @@
+<%- include("partials/header") %>
+<style>
+    #tagList {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+    }
+    
+    #tagItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 mx-auto mt-4">
+            <div class="card shadow">
+                <div class="card-header bg-success">
+                    <h3 class="text-light fw-bold text-center pt-1">Edit Contact (<%= user.name %>)</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form action="/update/<%= user._id %>?_method=PUT" method="POST" id="add-form" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name">Name</label>
+                            <input type="text" name="name" class="form-control form-control-large" placeholder="Enter name"  value = "<%= user.name %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" class="form-control form-control-large" placeholder="Enter email" value = "<%= user.email %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone">Phone</label>
+                            <input type="tel" name="phone" class="form-control form-control-large" placeholder="Enter phone" value = "<%= user.phone %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tag">Tag</label>
+                            <div class="input-group mb-3">
+                                <input type="text" name="tag" id= "tagInput" class="form-control form-control-large" placeholder="Enter Tag">
+                                <input type="hidden" name="tags" id="tagsInput">
+                                <div class="input-group-append">
+                                    <button type = "button" class="btn btn-outline-secondary" onclick="addTag()">Create Tag</button>
+                                </div>
+                            </div>
+                            <div id="tagList" name="tagList">
+                                <% if (user.tags && user.tags.length > 0) { %>
+                                    <% user.tags.forEach((tag, index) => { %>
+                                        <% if (tag.trim() !== "") { %>
+                                            <div class="btn btn-labeled btn-success btn-sm shadow rounded-pill">
+                                                <%= tag %>
+                                                <span class="bi-x-lg" onclick="deleteTag(<%= index %>)"></span>
+                                            </div>
+                                        <% } %>
+                                    <% }) %>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Select Image</label>
+                            <input type="file" name="image" class="form-control form-control-large">
+                            <img src="/<%= user.image %>" width="100" class="img-thumbnail mt-1">
+                        </div>
+                        <input type="hidden" name="old_image" value = "<%= user.image %>">
+                        <div class="mb-3 d-grid">
+                            <input type="submit" name="submit" value="Update User" class="btn btn-success btn-lg">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let originaltags = [<%- user.tags.map(tag => `"${tag}"`).join(', ') %>];
+    console.log(originaltags);
+    let tags = [...originaltags];
+    console.log(tags);
+    function addTag() {
+        const tagInput = document.getElementById("tagInput");
+        const tag = tagInput.value.trim();
+        if (tag !== '') {
+            tags.push(tag);
+            console.log(tags);
+            renderTag();
+            tagInput.value = '';
+            const tagsInput = document.getElementById("tagsInput");
+            tagsInput.value = tags.join(',');
+        }
+    }
+    function deleteTag(index) {
+        tags.splice(index,1);
+        renderTag();
+        const tagsInput = document.getElementById("tagsInput");
+        tagsInput.value = tags.join(',');
+    }
+
+    function renderTag() {
+        const tagList = document.getElementById("tagList");
+        tagList.innerHTML = ''
+        tags.forEach((tag, index) => {
+            const tagItem = document.createElement('button');
+            tagItem.classList.add('btn', 'btn-labeled', 'btn-success', 'btn-sm', 'shadow', 'rounded-pill');
+            const deletebutton = document.createElement('span');
+            deletebutton.classList.add('bi-x-lg')
+            deletebutton.onclick = () => deleteTag(index)
+            tagItem.appendChild(document.createTextNode(`${tag} `));
+            tagItem.appendChild(deletebutton);
+            tagList.appendChild(tagItem);
+            console.log(tagList);
+        });
+    }
+</script>
+<%- include("partials/footer") %>
